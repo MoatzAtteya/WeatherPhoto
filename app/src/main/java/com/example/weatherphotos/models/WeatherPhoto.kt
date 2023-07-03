@@ -8,6 +8,6 @@ import androidx.room.PrimaryKey
 )
 data class WeatherPhoto(
     @PrimaryKey(autoGenerate = true)
-    val id : Int,
+    val id : Int?= null,
     val path : String
 )

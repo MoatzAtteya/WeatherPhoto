@@ -22,10 +22,4 @@ object RepositoriesModules {
     fun provideWallRepository(service: WeatherService): WeatherRepository {
         return WeatherImpl(service)
     }
-
-    @Provides
-    @Singleton
-    fun provideNewsDBRepository(weatherDao: WeatherDao): WeatherDBRepository {
-        return WeatherDBImp(weatherDao)
-    }
 }

@@ -15,6 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="@dimen/_35sdp"
@@ -30,14 +31,19 @@
         android:layout_width="@dimen/_55sdp"
         android:layout_height="@dimen/_45sdp"
         android:src="@drawable/facbook_logo"
+        android:visibility="gone"
+        android:foreground="?selectableItemBackground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
     <ImageView
         android:id="@+id/twitter_share"
         android:layout_width="@dimen/_40sdp"
         android:layout_height="@dimen/_40sdp"
         android:layout_marginEnd="@dimen/_5sdp"
         android:src="@drawable/twitter_logo"
+        android:visibility="gone"
+        android:foreground="?selectableItemBackground"
         app:layout_constraintBottom_toTopOf="@+id/facebook_share"
         app:layout_constraintEnd_toEndOf="parent" />
 

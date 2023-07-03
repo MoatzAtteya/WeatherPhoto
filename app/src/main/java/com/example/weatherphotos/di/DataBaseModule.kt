@@ -2,6 +2,8 @@ package com.example.weatherphotos.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.weatherphotos.data.dao.WeatherDBImp
+import com.example.weatherphotos.data.dao.WeatherDBRepository
 import com.example.weatherphotos.data.dao.WeatherDao
 import com.example.weatherphotos.data.dao.WeatherDataBase
 import dagger.Module
@@ -20,14 +22,18 @@ object DataBaseModule {
         return Room.databaseBuilder(
             appContext,
             WeatherDataBase::class.java,
-            "asd"
-        ).allowMainThreadQueries().build()
+            "WeatherPhotos"
+        ).build()
     }
 
     @Provides
     @Singleton
     fun providesNewsDao(appDatabase: WeatherDataBase): WeatherDao {
-        return appDatabase.weatherDap()
+        return appDatabase.weatherDao()
     }
-
+    @Provides
+    @Singleton
+    fun provideNewsDBRepository(weatherDao: WeatherDao): WeatherDBRepository {
+        return WeatherDBImp(weatherDao)
+    }
 }

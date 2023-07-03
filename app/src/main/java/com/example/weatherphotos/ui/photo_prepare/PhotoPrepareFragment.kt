@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -20,12 +22,17 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.*
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.example.weatherphotos.DataState
 import com.example.weatherphotos.DomainConstants
 import com.example.weatherphotos.ProgressBarState
 import com.example.weatherphotos.R
 import com.example.weatherphotos.base.BaseFragment
 import com.example.weatherphotos.databinding.FragmentPhotoPrepareBinding
+import com.example.weatherphotos.models.WeatherPhoto
 import com.example.weatherphotos.models.WeatherResponse
 import com.example.weatherphotos.ui.photo_prepare.viewmodels.IPhotoPrepareViewModel
 import com.example.weatherphotos.ui.photo_prepare.viewmodels.PhotoPrepareViewModel
@@ -36,6 +43,10 @@ import com.guhungry.photomanipulator.factory.AndroidFactory
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
+import java.util.*
 
 
 @AndroidEntryPoint
@@ -151,8 +162,41 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
             110F,Paint.Align.CENTER,5F)
         printText(thumbnail!!,status, PointF(450F, 450F),Color.parseColor("#000000"),
             110F,Paint.Align.CENTER,5F)
-        Glide.with(requireContext()).load(thumbnail).into(binding.weatherPhotoIv)
+        Glide.with(requireContext()).load(thumbnail).listener(object : RequestListener<Drawable>{
+            override fun onLoadFailed(
+                e: GlideException?,
+                model: Any?,
+                target: Target<Drawable>?,
+                isFirstResource: Boolean
+            ): Boolean {
+                return false
+            }
+
+            override fun onResourceReady(
+                resource: Drawable?,
+                model: Any?,
+                target: Target<Drawable>?,
+                dataSource: DataSource?,
+                isFirstResource: Boolean
+            ): Boolean {
+                saveWeatherPhoto()
+                return false
+            }
+        }).into(binding.weatherPhotoIv)
     }
+
+    private fun saveWeatherPhoto() {
+        val wrapper = ContextWrapper(requireContext())
+        var file = wrapper.getDir("Weather_photos", Context.MODE_PRIVATE)
+        file = File(file,"${UUID.randomUUID()}.jpg")
+        val stream: OutputStream = FileOutputStream(file)
+        thumbnail!!.compress(Bitmap.CompressFormat.JPEG,80,stream)
+        stream.flush()
+        stream.close()
+        Log.d("saveWeatherPhoto", file.path)
+        viewModel?.saveWeatherPhoto(WeatherPhoto(path = file.path))
+    }
+
 
     private fun openCamera() {
         val values = ContentValues()
@@ -177,7 +221,6 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
 
                     imageUrl = getRealPathFromURI(imageUri)
                     getLastKnownLocation()
-                    Log.d("WeatherPhoto path", "$imageUrl")
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

@@ -7,5 +7,5 @@ import com.example.weatherphotos.models.WeatherPhoto
 
 @Database(entities = [WeatherPhoto::class], version = 1, exportSchema = false)
 abstract class WeatherDataBase : RoomDatabase() {
-    abstract fun weatherDap() : WeatherDao
+    abstract fun weatherDao() : WeatherDao
 }
