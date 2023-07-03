@@ -2,5 +2,6 @@
     <string name="app_name">WeatherPhotos</string>
     <string name="msg_general_error">Error happened! please, try again</string>
     <string name="msg_unauthorize_error">UnAuthorized, check your API key.</string>
+    <string name="getting_weather_data">Getting Weather Data</string>
 
 </resources>

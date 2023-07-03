@@ -19,7 +19,7 @@ class PhotoPrepareViewModel @Inject constructor(
 ) : ViewModel(), IPhotoPrepareViewModel {
 
     private val _weatherStatusResponse: MutableStateFlow<DataState<WeatherResponse>> = MutableStateFlow(
-        DataState.Loading(ProgressBarState.Loading)
+        DataState.Loading(ProgressBarState.Idle)
     )
 
     override fun weatherStatusResponse() = _weatherStatusResponse

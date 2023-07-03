@@ -49,6 +49,11 @@ abstract class BaseFragment<VM : IBaseViewModel> : Fragment() {
         snackbar.show()
         return snackbar
     }
+    fun showInfoSnackBar( message: String): Snackbar {
+        val snackbar = Snackbar.make(getSnackBarAnchorView(), message, Snackbar.LENGTH_LONG)
+        snackbar.show()
+        return snackbar
+    }
 
     fun showLoadingDialog(context: Context?) {
 
