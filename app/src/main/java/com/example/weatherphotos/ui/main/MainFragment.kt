@@ -61,7 +61,9 @@ class MainFragment : Fragment() {
         }
 
     private fun updateUi() {
-        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.container,PhotoPrepareFragment.newInstance()).commit()
+        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.container,PhotoPrepareFragment.newInstance())
+            .addToBackStack("PhotoPrepareFragment")
+            .commit()
     }
 
     private fun checkCameraStoragePermission() {

@@ -28,7 +28,6 @@ import com.example.weatherphotos.ui.photo_prepare.viewmodels.IPhotoPrepareViewMo
 import com.example.weatherphotos.ui.photo_prepare.viewmodels.PhotoPrepareViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.guhungry.photomanipulator.BitmapUtils
 import com.guhungry.photomanipulator.factory.AndroidConcreteFactory
 import com.guhungry.photomanipulator.factory.AndroidFactory
 import dagger.hilt.android.AndroidEntryPoint
@@ -103,15 +102,24 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
     }
 
     private fun updateImageUi(weatherResponse: WeatherResponse) {
-        val centreX=binding.weatherPhotoIv.pivotX  / 2
-        val centreY=binding.weatherPhotoIv.pivotY / 2
-        val weatherInfo = buildString {
-            append("${weatherResponse.name } \n ")
-            append("${weatherResponse.weather[0].description } \n ")
+        val location = buildString {
+            append("Location: ")
+            append(weatherResponse.name)
+        }
+        val temp = buildString {
+            append("Temperature: ")
             append("${weatherResponse.main.temp} c")
         }
-        printText(thumbnail!!,weatherInfo, PointF(centreX, centreY),Color.parseColor("#000000"),
-            200F,Paint.Align.CENTER,5F)
+        val status = buildString {
+            append("Status: ")
+            append(weatherResponse.weather[0].description)
+        }
+        printText(thumbnail!!,location, PointF(400F, 200F),Color.parseColor("#000000"),
+            110F,Paint.Align.CENTER,5F)
+        printText(thumbnail!!,temp, PointF(540F, 330F),Color.parseColor("#000000"),
+            110F,Paint.Align.CENTER,5F)
+        printText(thumbnail!!,status, PointF(450F, 450F),Color.parseColor("#000000"),
+            110F,Paint.Align.CENTER,5F)
         Glide.with(requireContext()).load(thumbnail).into(binding.weatherPhotoIv)
     }
 
@@ -175,6 +183,7 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
         val paint = factory.makePaint().apply {
             this.color = color
             textSize = size
+            textSize
             textAlign = alignment
 
             if (thickness > 0) {
