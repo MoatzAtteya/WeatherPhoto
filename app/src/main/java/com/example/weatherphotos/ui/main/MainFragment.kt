@@ -73,6 +73,7 @@ class MainFragment : BaseFragment<IMainFragmentViewModel, FragmentMainBinding>()
         adapter.differ.submitList(photosList)
         adapter.submitClickCallback(object : BaseAdapterItemClickListener<WeatherPhoto> {
             override fun onItemClicked(position: Int, itemModel: WeatherPhoto) {
+                findNavController().navigate(MainFragmentDirections.actionMainFragmentToPhotoPrepareFragment(itemModel.path))
 
             }
         })
@@ -134,7 +135,7 @@ class MainFragment : BaseFragment<IMainFragmentViewModel, FragmentMainBinding>()
         }
 
     private fun openCameraFragment() {
-        findNavController().navigate(MainFragmentDirections.actionMainFragmentToPhotoPrepareFragment())
+        findNavController().navigate(MainFragmentDirections.actionMainFragmentToPhotoPrepareFragment(""))
     }
 
 

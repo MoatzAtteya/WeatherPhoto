@@ -4,10 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.PointF
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
@@ -16,6 +13,7 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.*
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -38,6 +36,7 @@ import com.guhungry.photomanipulator.factory.AndroidConcreteFactory
 import com.guhungry.photomanipulator.factory.AndroidFactory
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.*
 
 
@@ -49,13 +48,14 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel , FragmentPhoto
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var thumbnail: Bitmap? = null
     private var imageUrl: String? = null
+    private val args : PhotoPrepareFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
     }
 
-    override fun getContentView() = R.layout.fragment_photo_prepare
+    override fun getContentView() = com.example.weatherphotos.R.layout.fragment_photo_prepare
 
     override fun getSnackBarAnchorView() = baseViewBinding.root
 
@@ -64,7 +64,19 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel , FragmentPhoto
     }
 
     override fun initView() {
-        openCamera()
+        args.let {
+            if (it.photoPath.isNotEmpty()){
+                val imgFile = File(it.photoPath)
+                if (imgFile.exists()) {
+                    thumbnail = BitmapFactory.decodeFile(imgFile.absolutePath)
+                    Glide.with(requireContext()).load(thumbnail).into(baseViewBinding.weatherPhotoIv)
+                    baseViewBinding.facebookShare.visibility = View.VISIBLE
+                    baseViewBinding.twitterShare.visibility = View.VISIBLE
+                }
+            }else{
+                openCamera()
+            }
+        }
         baseViewBinding.facebookShare.setOnClickListener {
             shareImg(DomainConstants.FACEBOOK_PACKAGE)
         }
@@ -130,7 +142,7 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel , FragmentPhoto
             append(weatherResponse.weather[0].description)
         }
         printText(
-            thumbnail!!, location, PointF(450F, 200F), Color.parseColor("#000000"),
+            thumbnail!!, location, PointF(560F, 200F), Color.parseColor("#000000"),
             110F, Paint.Align.CENTER, 5F
         )
         printText(

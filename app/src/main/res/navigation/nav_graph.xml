@@ -15,5 +15,9 @@
     <fragment
         android:id="@+id/photoPrepareFragment"
         android:name="com.example.weatherphotos.ui.photo_prepare.PhotoPrepareFragment"
-        android:label="PhotoPrepareFragment" />
+        android:label="PhotoPrepareFragment" >
+        <argument
+            android:name="photoPath"
+            app:argType="string" />
+    </fragment>
 </navigation>
