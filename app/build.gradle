@@ -43,6 +43,16 @@ android {
     buildFeatures {
         dataBinding true
     }
+
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    def apikey = properties.getProperty('apikey')
+    defaultConfig {
+        buildConfigField "String" , "API_KEY" ,  apikey
+    }
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 dependencies {
