@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WeatherPhotos</string>
+    <string name="msg_general_error">حدث خطأ برجاء المحاولة مرة اخرى</string>
+    <string name="msg_unauthorize_error">غير مسموح برجاء التحقق منAPI Key</string>
+    <string name="getting_weather_data">جاري الحصول على بيانات الطقس</string>
+    <string name="empty_photos_msg">ليس لديك أي صور للطقس</string>
+    <string name="creation_date_title">التاريخ: %1$s</string>
+    <string name="location_title">الموقع: %1$s</string>
+    <string name="temp_title">الحرارة: %1$s</string>
+    <string name="database_error_msg">حدذ خطأ اثناء الإتصال بقاعدة البيانات</string>
+    <string name="photo_deleted_msg">تم مسح الصورة بنجاح.</string>
+    <string name="enable_permissions_msg">يحب السماح للأذونات</string>
+
+</resources>

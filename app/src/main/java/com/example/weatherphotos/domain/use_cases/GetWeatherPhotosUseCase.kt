@@ -11,18 +11,16 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-class SavePhotoUseCase @Inject constructor(
+class GetWeatherPhotosUseCase @Inject constructor(
     private val repository: WeatherDBRepository
-)
-{
-    fun invoke(weatherPhoto: WeatherPhoto): Flow<DataState<Long>> = flow {
+) {
+    fun invoke(): Flow<DataState<List<WeatherPhoto>>> = flow {
         try {
             emit(DataState.Loading(ProgressBarState.Loading))
-            val data = repository.saveWeatherPhoto(
-                weatherPhoto
-            )
+            repository.getSavedPhotos().collect {
+                emit(DataState.Data(it))
+            }
             emit(DataState.Loading(ProgressBarState.Idle))
-            emit(DataState.Data(data))
 
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -30,5 +28,4 @@ class SavePhotoUseCase @Inject constructor(
             emit(DataState.Error(ResponseCodeHandler.SERVER_ERROR, ex.message.toString()))
         }
     }.flowOn(Dispatchers.IO)
-
 }

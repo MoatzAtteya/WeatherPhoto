@@ -1,7 +1,7 @@
-package com.example.weatherphotos
+package com.example.weatherphotos.helper
 
 object ErrorCode {
-    fun getCodeStatus(code: Int?): ResponseCodeHandler{
+    fun getCodeStatus(code: Int?): ResponseCodeHandler {
         return when (code) {
             in 200..300 -> {
                 ResponseCodeHandler.SUCCESSFUL

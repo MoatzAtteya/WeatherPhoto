@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="myPhoto"
+            type="com.example.weatherphotos.domain.model.WeatherPhoto" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="5dp"
+        app:cardCornerRadius="5dp"
+        android:layout_margin="@dimen/_3sdp"
+        app:cardUseCompatPadding="true"
+        >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/weather_photo_iv"
+                android:layout_width="@dimen/_100sdp"
+                android:layout_height="@dimen/_110sdp"
+                tools:src="@drawable/twitter_logo"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                loadWeatherPhoto="@{myPhoto}"/>
+
+            <TextView
+                android:id="@+id/creation_date_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_13ssp"
+                android:fontFamily="@font/montserrat_regular"
+                android:textAlignment="viewStart"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/weather_photo_iv"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Date: 22/4/2023 5:55"
+                android:text="@{@string/creation_date_title(myPhoto.creationDate)}"/>
+
+            <TextView
+                android:id="@+id/location_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_13ssp"
+                android:textAlignment="viewStart"
+                android:fontFamily="@font/montserrat_regular"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/weather_photo_iv"
+                app:layout_constraintTop_toBottomOf="@+id/creation_date_tv"
+                tools:text="Location: Giza"
+                android:text="@{@string/location_title(myPhoto.location)}"/>
+
+            <TextView
+                android:id="@+id/temp_Tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_13ssp"
+                android:textAlignment="viewStart"
+                android:fontFamily="@font/montserrat_regular"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/weather_photo_iv"
+                app:layout_constraintTop_toBottomOf="@+id/location_tv"
+                tools:text="Temp: 23c"
+                android:text="@{@string/temp_title(myPhoto.temp)}"/>
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+
+</layout>

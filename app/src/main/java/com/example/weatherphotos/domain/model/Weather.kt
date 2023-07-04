@@ -1,4 +1,4 @@
-package com.example.weatherphotos.models
+package com.example.weatherphotos.domain.model
 
 data class Weather(
     val temp: Double,

@@ -3,5 +3,12 @@
     <string name="msg_general_error">Error happened! please, try again</string>
     <string name="msg_unauthorize_error">UnAuthorized, check your API key.</string>
     <string name="getting_weather_data">Getting Weather Data</string>
+    <string name="empty_photos_msg">Your Weather photos is empty</string>
+    <string name="creation_date_title">Date: %1$s</string>
+    <string name="location_title">Location: %1$s</string>
+    <string name="temp_title">Temp: %1$s</string>
+    <string name="database_error_msg">Error while connecting to the database.</string>
+    <string name="photo_deleted_msg">Photo Deleted successfully.</string>
+    <string name="enable_permissions_msg"> You need to enable the permissions </string>
 
 </resources>

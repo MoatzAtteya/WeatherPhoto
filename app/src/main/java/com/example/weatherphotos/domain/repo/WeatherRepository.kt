@@ -1,6 +1,6 @@
-package com.example.weatherphotos.data.remote
+package com.example.weatherphotos.domain.repo
 
-import com.example.weatherphotos.models.WeatherResponse
+import com.example.weatherphotos.domain.model.WeatherResponse
 import retrofit2.Response
 
 interface WeatherRepository {

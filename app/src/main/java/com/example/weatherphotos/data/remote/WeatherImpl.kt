@@ -1,5 +1,6 @@
 package com.example.weatherphotos.data.remote
 
+import com.example.weatherphotos.domain.repo.WeatherRepository
 import javax.inject.Inject
 
 class WeatherImpl @Inject constructor(

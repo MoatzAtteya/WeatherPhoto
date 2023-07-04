@@ -1,33 +1,35 @@
 package com.example.weatherphotos.base
 
-import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.annotation.StringRes
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
-import androidx.viewbinding.ViewBinding
 import com.example.weatherphotos.R
-import com.example.weatherphotos.ResponseCodeHandler
+import com.example.weatherphotos.helper.ResponseCodeHandler
 import com.google.android.material.snackbar.Snackbar
-import java.util.*
 
-abstract class BaseFragment<VM : IBaseViewModel> : Fragment() {
+abstract class BaseFragment<VM : IBaseViewModel , VB : ViewDataBinding> : Fragment() {
 
     protected var viewModel: VM? = null
 
-//    lateinit var baseViewBinding : VB
+    lateinit var baseViewBinding : VB
     protected abstract fun initView()
     protected abstract fun getContentView(): Int
     protected open fun initializeViewModel(){}
     protected open fun subscribeObservers(){}
-//    override fun onCreateView(
-//        inflater: LayoutInflater,
-//        container: ViewGroup?,
-//        savedInstanceState: Bundle?
-//    ): View? {
-//        baseViewBinding = DataBindingUtil.inflate(inflater , getContentView() , container , false)
-//        return baseViewBinding.root
-//    }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        baseViewBinding = DataBindingUtil.inflate(inflater , getContentView() , container , false)
+        return baseViewBinding.root
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,10 +57,6 @@ abstract class BaseFragment<VM : IBaseViewModel> : Fragment() {
         return snackbar
     }
 
-    fun showLoadingDialog(context: Context?) {
-
-    }
-
     fun showApiError(exception: ResponseCodeHandler){
         when (exception) {
             ResponseCodeHandler.UNAUTHORIZED -> showInfoSnackBar(R.string.msg_unauthorize_error)
@@ -67,6 +65,10 @@ abstract class BaseFragment<VM : IBaseViewModel> : Fragment() {
                 showInfoSnackBar(R.string.msg_general_error)
             }
         }
+    }
+
+    fun showDBError(){
+        showInfoSnackBar(getString(R.string.database_error_msg))
     }
 
 }

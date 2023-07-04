@@ -1,4 +1,4 @@
-package com.example.weatherphotos
+package com.example.weatherphotos.helper
 
 import android.Manifest
 

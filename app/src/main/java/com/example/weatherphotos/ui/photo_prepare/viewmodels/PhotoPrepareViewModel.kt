@@ -2,15 +2,14 @@ package com.example.weatherphotos.ui.photo_prepare.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherphotos.DataState
-import com.example.weatherphotos.ProgressBarState
+import com.example.weatherphotos.helper.DataState
+import com.example.weatherphotos.helper.ProgressBarState
 import com.example.weatherphotos.domain.use_cases.GetWeatherUseCase
 import com.example.weatherphotos.domain.use_cases.SavePhotoUseCase
-import com.example.weatherphotos.models.WeatherPhoto
-import com.example.weatherphotos.models.WeatherResponse
+import com.example.weatherphotos.domain.model.WeatherPhoto
+import com.example.weatherphotos.domain.model.WeatherResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject

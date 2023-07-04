@@ -1,72 +1,153 @@
 package com.example.weatherphotos.ui.main
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.weatherphotos.PermissionHelper.cameraAndLocationPermission
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.weatherphotos.helper.DataState
+import com.example.weatherphotos.helper.PermissionHelper.cameraAndLocationPermission
 import com.example.weatherphotos.R
+import com.example.weatherphotos.base.BaseAdapterItemClickListener
+import com.example.weatherphotos.base.BaseFragment
 import com.example.weatherphotos.databinding.FragmentMainBinding
+import com.example.weatherphotos.domain.model.WeatherPhoto
+import com.example.weatherphotos.ui.main.adapter.PhotosAdapter
+import com.example.weatherphotos.ui.main.viewmodels.IMainFragmentViewModel
+import com.example.weatherphotos.ui.main.viewmodels.MainViewModel
 import com.example.weatherphotos.ui.photo_prepare.PhotoPrepareFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
 
-class MainFragment : Fragment() {
+@AndroidEntryPoint
+class MainFragment : BaseFragment<IMainFragmentViewModel, FragmentMainBinding>() {
 
     companion object {
         fun newInstance() = MainFragment()
     }
 
-    private lateinit var viewModel: MainViewModel
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var binding: FragmentMainBinding
+    private val adapter : PhotosAdapter by lazy {
+        PhotosAdapter()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentMainBinding.inflate(inflater, container, false)
-
-        binding.openCameraBtn.setOnClickListener {
+    override fun initView() {
+        baseViewBinding.openCameraBtn.setOnClickListener {
             checkCameraStoragePermission()
         }
-
-        return binding.root
+        viewModel?.getWeatherPhotos()
     }
 
+    override fun getContentView() = R.layout.fragment_main
+
+    override fun getSnackBarAnchorView() = baseViewBinding.root
+
+    override fun subscribeObservers() {
+        getPhotosResponse()
+    }
+
+    private fun getPhotosResponse() {
+        viewModel?.weatherPhotosResponse()?.observe(this) { dataState ->
+            when (dataState) {
+                is DataState.Data -> {
+                    val photosList = dataState.data
+                    if (photosList != null)
+                        initPhotosRv(photosList)
+                }
+                is DataState.Error -> {
+                    showDBError()
+                }
+                is DataState.Loading -> {}
+            }
+        }
+    }
+
+    private fun initPhotosRv(photosList: List<WeatherPhoto>) {
+        if (photosList.isEmpty()) {
+            baseViewBinding.emptyPhotosMsg.visibility = View.VISIBLE
+            return
+        }
+        baseViewBinding.emptyPhotosMsg.visibility = View.GONE
+        adapter.differ.submitList(photosList)
+        adapter.submitClickCallback(object : BaseAdapterItemClickListener<WeatherPhoto> {
+            override fun onItemClicked(position: Int, itemModel: WeatherPhoto) {
+
+            }
+        })
+        baseViewBinding.photosRv.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        baseViewBinding.photosRv.adapter = adapter
+        handleSwipeArticleListener()
+    }
+
+    private fun handleSwipeArticleListener() {
+        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                viewModel?.deletePhoto(adapter.differ.currentList[position])
+                // deleting the deleted photo from device.
+                try {
+                    File(adapter.differ.currentList[position].path).delete()
+                    showInfoSnackBar(getString(R.string.photo_deleted_msg))
+                }catch (ex : Exception){
+                    ex.printStackTrace()
+                }
+            }
+        }
+        ItemTouchHelper(itemTouchHelperCallback).apply {
+            attachToRecyclerView(baseViewBinding.photosRv)
+        }
+    }
+
+    override fun initializeViewModel() {
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+    }
+
+    private fun checkCameraStoragePermission() {
+        requestPermissionLauncher.launch(cameraAndLocationPermission)
+    }
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { isGranted ->
             if (isGranted.containsValue(false)) {
                 Toast.makeText(
                     requireContext(),
-                    " You need to enable the permissions ",
+                    getString(R.string.enable_permissions_msg),
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-                updateUi()
+                openCameraFragment()
             }
         }
 
-    private fun updateUi() {
-        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.container,PhotoPrepareFragment.newInstance())
-            .addToBackStack("PhotoPrepareFragment")
+    private fun openCameraFragment() {
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.container, PhotoPrepareFragment.newInstance())
+            .addToBackStack("MainFragment")
             .commit()
     }
 
-    private fun checkCameraStoragePermission() {
-        requestPermissionLauncher.launch(cameraAndLocationPermission)
-    }
+
 }

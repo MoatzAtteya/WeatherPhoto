@@ -3,7 +3,7 @@ package com.example.weatherphotos.di
 import android.content.Context
 import androidx.room.Room
 import com.example.weatherphotos.data.dao.WeatherDBImp
-import com.example.weatherphotos.data.dao.WeatherDBRepository
+import com.example.weatherphotos.domain.repo.WeatherDBRepository
 import com.example.weatherphotos.data.dao.WeatherDao
 import com.example.weatherphotos.data.dao.WeatherDataBase
 import dagger.Module

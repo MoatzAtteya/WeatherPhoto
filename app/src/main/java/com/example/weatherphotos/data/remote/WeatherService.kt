@@ -1,7 +1,7 @@
 package com.example.weatherphotos.data.remote
 
 import com.example.weatherphotos.DomainConstants
-import com.example.weatherphotos.models.WeatherResponse
+import com.example.weatherphotos.domain.model.WeatherResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query

@@ -16,9 +16,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.*
 import com.bumptech.glide.Glide
@@ -26,14 +24,14 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.example.weatherphotos.DataState
+import com.example.weatherphotos.helper.DataState
 import com.example.weatherphotos.DomainConstants
-import com.example.weatherphotos.ProgressBarState
+import com.example.weatherphotos.helper.ProgressBarState
 import com.example.weatherphotos.R
 import com.example.weatherphotos.base.BaseFragment
 import com.example.weatherphotos.databinding.FragmentPhotoPrepareBinding
-import com.example.weatherphotos.models.WeatherPhoto
-import com.example.weatherphotos.models.WeatherResponse
+import com.example.weatherphotos.domain.model.WeatherPhoto
+import com.example.weatherphotos.domain.model.WeatherResponse
 import com.example.weatherphotos.ui.photo_prepare.viewmodels.IPhotoPrepareViewModel
 import com.example.weatherphotos.ui.photo_prepare.viewmodels.PhotoPrepareViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -46,34 +44,27 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import java.text.SimpleDateFormat
 import java.util.*
 
 
 @AndroidEntryPoint
-class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
-    private lateinit var binding: FragmentPhotoPrepareBinding
+class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel , FragmentPhotoPrepareBinding >() {
     private var imageUri: Uri? = null
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var thumbnail : Bitmap ?= null
-    private var imageUrl :String?= null
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentPhotoPrepareBinding.inflate(inflater,container,false)
-        return binding.root
-    }
+    private var thumbnail: Bitmap? = null
+    private var imageUrl: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
     }
+
     override fun getContentView() = R.layout.fragment_photo_prepare
 
-    override fun getSnackBarAnchorView() = binding.root
+    override fun getSnackBarAnchorView() = baseViewBinding.root
 
     override fun initializeViewModel() {
         viewModel = ViewModelProvider(this)[PhotoPrepareViewModel::class.java]
@@ -81,18 +72,18 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
 
     override fun initView() {
         openCamera()
-        binding.facebookShare.setOnClickListener {
+        baseViewBinding.facebookShare.setOnClickListener {
             shareImg(DomainConstants.FACEBOOK_PACKAGE)
         }
-        binding.twitterShare.setOnClickListener {
+        baseViewBinding.twitterShare.setOnClickListener {
             shareImg(DomainConstants.TWITTER_PACKAGE)
         }
     }
 
-    private fun shareImg(application : String){
+    private fun shareImg(application: String) {
         val share = Intent(Intent.ACTION_SEND)
         share.type = "image/JPEG"
-        share.putExtra(Intent.EXTRA_STREAM, getImageUri(requireContext(),thumbnail!!))
+        share.putExtra(Intent.EXTRA_STREAM, getImageUri(requireContext(), thumbnail!!))
         share.setPackage(application)
         startActivity(Intent.createChooser(share, "Share image using"))
     }
@@ -118,8 +109,8 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
             var isComplete = false
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 if (!isComplete) {
-                    viewModel?.weatherStatusResponse()?.collect{dataState->
-                        when(dataState){
+                    viewModel?.weatherStatusResponse()?.collect { dataState ->
+                        when (dataState) {
                             is DataState.Data -> {
                                 val weatherResponse = dataState.data!!
                                 updateImageUi(weatherResponse)
@@ -129,9 +120,9 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
                             }
                             is DataState.Loading -> {
                                 if (dataState.progressBarState == ProgressBarState.Loading)
-                                    binding.progressBar.visibility = View.VISIBLE
+                                    baseViewBinding.progressBar.visibility = View.VISIBLE
                                 else
-                                    binding.progressBar.visibility = View.GONE
+                                    baseViewBinding.progressBar.visibility = View.GONE
                             }
                         }
                     }
@@ -142,8 +133,8 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
     }
 
     private fun updateImageUi(weatherResponse: WeatherResponse) {
-        binding.twitterShare.visibility = View.VISIBLE
-        binding.facebookShare.visibility = View.VISIBLE
+        baseViewBinding.twitterShare.visibility = View.VISIBLE
+        baseViewBinding.facebookShare.visibility = View.VISIBLE
         val location = buildString {
             append("Location: ")
             append(weatherResponse.name)
@@ -156,13 +147,19 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
             append("Status: ")
             append(weatherResponse.weather[0].description)
         }
-        printText(thumbnail!!,location, PointF(400F, 200F),Color.parseColor("#000000"),
-            110F,Paint.Align.CENTER,5F)
-        printText(thumbnail!!,temp, PointF(540F, 330F),Color.parseColor("#000000"),
-            110F,Paint.Align.CENTER,5F)
-        printText(thumbnail!!,status, PointF(450F, 450F),Color.parseColor("#000000"),
-            110F,Paint.Align.CENTER,5F)
-        Glide.with(requireContext()).load(thumbnail).listener(object : RequestListener<Drawable>{
+        printText(
+            thumbnail!!, location, PointF(420F, 200F), Color.parseColor("#000000"),
+            110F, Paint.Align.CENTER, 5F
+        )
+        printText(
+            thumbnail!!, temp, PointF(560F, 330F), Color.parseColor("#000000"),
+            110F, Paint.Align.CENTER, 5F
+        )
+        printText(
+            thumbnail!!, status, PointF(450F, 450F), Color.parseColor("#000000"),
+            110F, Paint.Align.CENTER, 5F
+        )
+        Glide.with(requireContext()).load(thumbnail).listener(object : RequestListener<Drawable> {
             override fun onLoadFailed(
                 e: GlideException?,
                 model: Any?,
@@ -179,24 +176,35 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
                 dataSource: DataSource?,
                 isFirstResource: Boolean
             ): Boolean {
-                saveWeatherPhoto()
+                saveWeatherPhoto(weatherResponse)
                 return false
             }
-        }).into(binding.weatherPhotoIv)
+        }).into(baseViewBinding.weatherPhotoIv)
     }
 
-    private fun saveWeatherPhoto() {
+    private fun saveWeatherPhoto(weatherResponse: WeatherResponse) {
         val wrapper = ContextWrapper(requireContext())
         var file = wrapper.getDir("Weather_photos", Context.MODE_PRIVATE)
-        file = File(file,"${UUID.randomUUID()}.jpg")
+        file = File(file, "${UUID.randomUUID()}.jpg")
         val stream: OutputStream = FileOutputStream(file)
-        thumbnail!!.compress(Bitmap.CompressFormat.JPEG,80,stream)
+        thumbnail!!.compress(Bitmap.CompressFormat.JPEG, 80, stream)
         stream.flush()
         stream.close()
         Log.d("saveWeatherPhoto", file.path)
-        viewModel?.saveWeatherPhoto(WeatherPhoto(path = file.path))
+        viewModel?.saveWeatherPhoto(
+            WeatherPhoto(
+                path = file.path,
+                location = weatherResponse.name,
+                temp = weatherResponse.main.temp.toInt().toString(),
+                creationDate = getCurrentDateTime()
+            )
+        )
     }
 
+    private fun getCurrentDateTime(): String {
+        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss" , Locale.ENGLISH)
+        return sdf.format(Date())
+    }
 
     private fun openCamera() {
         val values = ContentValues()
@@ -215,9 +223,9 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 try {
-                     thumbnail = MediaStore.Images.Media.getBitmap(
+                    thumbnail = MediaStore.Images.Media.getBitmap(
                         requireActivity().contentResolver, imageUri
-                    ).copy(Bitmap.Config.ARGB_8888,true)
+                    ).copy(Bitmap.Config.ARGB_8888, true)
 
                     imageUrl = getRealPathFromURI(imageUri)
                     getLastKnownLocation()
@@ -245,12 +253,21 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
                 if (location != null) {
                     longitude = location.longitude
                     latitude = location.latitude
-                    viewModel?.getWeatherStatus(latitude,longitude)
+                    viewModel?.getWeatherStatus(latitude, longitude)
                 }
             }
     }
 
-    private fun printText(image: Bitmap, text: String, position: PointF, color: Int, size: Float, alignment: Paint.Align = Paint.Align.LEFT, thickness: Float = 0f, factory: AndroidFactory = AndroidConcreteFactory()) {
+    private fun printText(
+        image: Bitmap,
+        text: String,
+        position: PointF,
+        color: Int,
+        size: Float,
+        alignment: Paint.Align = Paint.Align.LEFT,
+        thickness: Float = 0f,
+        factory: AndroidFactory = AndroidConcreteFactory()
+    ) {
         val canvas = factory.makeCanvas(image)
         val paint = factory.makePaint().apply {
             this.color = color
@@ -263,7 +280,7 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel >() {
                 strokeWidth = thickness
             }
         }
-        canvas.drawText(text, position.x, position.y , paint)
+        canvas.drawText(text, position.x, position.y, paint)
     }
 
     companion object {
