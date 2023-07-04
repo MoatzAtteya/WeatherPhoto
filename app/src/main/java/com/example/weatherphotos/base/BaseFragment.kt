@@ -46,7 +46,7 @@ abstract class BaseFragment<VM : IBaseViewModel , VB : ViewDataBinding> : Fragme
     abstract fun getSnackBarAnchorView(): View
 
 
-    fun showInfoSnackBar(@StringRes message: Int): Snackbar {
+    private fun showInfoSnackBar(@StringRes message: Int): Snackbar {
         val snackbar = Snackbar.make(getSnackBarAnchorView(), message, Snackbar.LENGTH_LONG)
         snackbar.show()
         return snackbar

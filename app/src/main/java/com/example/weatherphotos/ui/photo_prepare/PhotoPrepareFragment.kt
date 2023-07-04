@@ -3,10 +3,7 @@ package com.example.weatherphotos.ui.photo_prepare
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentValues
-import android.content.Context
-import android.content.ContextWrapper
 import android.content.Intent
-import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Paint
@@ -15,7 +12,6 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.*
@@ -24,14 +20,15 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.example.weatherphotos.helper.DataState
 import com.example.weatherphotos.DomainConstants
-import com.example.weatherphotos.helper.ProgressBarState
 import com.example.weatherphotos.R
 import com.example.weatherphotos.base.BaseFragment
 import com.example.weatherphotos.databinding.FragmentPhotoPrepareBinding
 import com.example.weatherphotos.domain.model.WeatherPhoto
 import com.example.weatherphotos.domain.model.WeatherResponse
+import com.example.weatherphotos.helper.DataState
+import com.example.weatherphotos.helper.FileUtils
+import com.example.weatherphotos.helper.ProgressBarState
 import com.example.weatherphotos.ui.photo_prepare.viewmodels.IPhotoPrepareViewModel
 import com.example.weatherphotos.ui.photo_prepare.viewmodels.PhotoPrepareViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -40,11 +37,6 @@ import com.guhungry.photomanipulator.factory.AndroidConcreteFactory
 import com.guhungry.photomanipulator.factory.AndroidFactory
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStream
-import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -83,22 +75,11 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel , FragmentPhoto
     private fun shareImg(application: String) {
         val share = Intent(Intent.ACTION_SEND)
         share.type = "image/JPEG"
-        share.putExtra(Intent.EXTRA_STREAM, getImageUri(requireContext(), thumbnail!!))
+        share.putExtra(Intent.EXTRA_STREAM, FileUtils.getImageUri(requireContext(), thumbnail!!))
         share.setPackage(application)
         startActivity(Intent.createChooser(share, "Share image using"))
     }
 
-    private fun getImageUri(inContext: Context, inImage: Bitmap): Uri? {
-        val bytes = ByteArrayOutputStream()
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-        val path = MediaStore.Images.Media.insertImage(
-            inContext.contentResolver,
-            inImage,
-            "Photo",
-            null
-        )
-        return Uri.parse(path)
-    }
 
     override fun subscribeObservers() {
         getWeatherStatusResponse()
@@ -183,28 +164,17 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel , FragmentPhoto
     }
 
     private fun saveWeatherPhoto(weatherResponse: WeatherResponse) {
-        val wrapper = ContextWrapper(requireContext())
-        var file = wrapper.getDir("Weather_photos", Context.MODE_PRIVATE)
-        file = File(file, "${UUID.randomUUID()}.jpg")
-        val stream: OutputStream = FileOutputStream(file)
-        thumbnail!!.compress(Bitmap.CompressFormat.JPEG, 80, stream)
-        stream.flush()
-        stream.close()
-        Log.d("saveWeatherPhoto", file.path)
+        val file = FileUtils.saveWeatherPhoto(requireContext(),thumbnail!!)
         viewModel?.saveWeatherPhoto(
             WeatherPhoto(
                 path = file.path,
                 location = weatherResponse.name,
                 temp = weatherResponse.main.temp.toInt().toString(),
-                creationDate = getCurrentDateTime()
+                creationDate = FileUtils.getCurrentDateTime()
             )
         )
     }
 
-    private fun getCurrentDateTime(): String {
-        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss" , Locale.ENGLISH)
-        return sdf.format(Date())
-    }
 
     private fun openCamera() {
         val values = ContentValues()
@@ -227,7 +197,7 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel , FragmentPhoto
                         requireActivity().contentResolver, imageUri
                     ).copy(Bitmap.Config.ARGB_8888, true)
 
-                    imageUrl = getRealPathFromURI(imageUri)
+                    imageUrl = FileUtils.getRealPathFromURI(imageUri!!,requireContext())
                     getLastKnownLocation()
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -236,15 +206,6 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel , FragmentPhoto
                 requireActivity().onBackPressed()
             }
         }
-
-    private fun getRealPathFromURI(contentUri: Uri?): String? {
-        val proj = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor: Cursor = requireActivity().managedQuery(contentUri, proj, null, null, null)
-        val columnIndex: Int = cursor
-            .getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        cursor.moveToFirst()
-        return cursor.getString(columnIndex)
-    }
 
     @SuppressLint("MissingPermission")
     private fun getLastKnownLocation() {
