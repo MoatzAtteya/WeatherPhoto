@@ -1,6 +1,5 @@
 package com.example.weatherphotos.ui.main
 
-import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -9,19 +8,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weatherphotos.helper.DataState
-import com.example.weatherphotos.helper.PermissionHelper.cameraAndLocationPermission
 import com.example.weatherphotos.R
 import com.example.weatherphotos.base.BaseAdapterItemClickListener
 import com.example.weatherphotos.base.BaseFragment
 import com.example.weatherphotos.databinding.FragmentMainBinding
 import com.example.weatherphotos.domain.model.WeatherPhoto
+import com.example.weatherphotos.helper.DataState
+import com.example.weatherphotos.helper.PermissionHelper.cameraAndLocationPermission
 import com.example.weatherphotos.ui.main.adapter.PhotosAdapter
 import com.example.weatherphotos.ui.main.viewmodels.IMainFragmentViewModel
 import com.example.weatherphotos.ui.main.viewmodels.MainViewModel
-import com.example.weatherphotos.ui.photo_prepare.PhotoPrepareFragment
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 
@@ -32,16 +28,10 @@ class MainFragment : BaseFragment<IMainFragmentViewModel, FragmentMainBinding>()
         fun newInstance() = MainFragment()
     }
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val adapter : PhotosAdapter by lazy {
         PhotosAdapter()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
-
-    }
 
     override fun initView() {
         baseViewBinding.openCameraBtn.setOnClickListener {

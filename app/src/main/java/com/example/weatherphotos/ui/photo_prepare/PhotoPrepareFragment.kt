@@ -130,7 +130,7 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel , FragmentPhoto
             append(weatherResponse.weather[0].description)
         }
         printText(
-            thumbnail!!, location, PointF(420F, 200F), Color.parseColor("#000000"),
+            thumbnail!!, location, PointF(450F, 200F), Color.parseColor("#000000"),
             110F, Paint.Align.CENTER, 5F
         )
         printText(
