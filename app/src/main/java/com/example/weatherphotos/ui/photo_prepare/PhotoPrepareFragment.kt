@@ -15,6 +15,7 @@ import android.provider.MediaStore
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.*
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -203,7 +204,7 @@ class PhotoPrepareFragment : BaseFragment<IPhotoPrepareViewModel , FragmentPhoto
                     e.printStackTrace()
                 }
             } else {
-                requireActivity().onBackPressed()
+                findNavController().navigateUp()
             }
         }
 

@@ -4,6 +4,7 @@ plugins {
     id 'dagger.hilt.android.plugin'
     id 'kotlin-kapt'
     id 'kotlin-android'
+    id 'androidx.navigation.safeargs.kotlin'
 
 }
 
@@ -56,6 +57,7 @@ dependencies {
 
     //Hilt
     implementation 'com.google.dagger:hilt-android:2.44'
+    implementation 'androidx.navigation:navigation-fragment:2.6.0'
     kapt 'com.google.dagger:hilt-compiler:2.44'
 
     implementation 'com.google.android.gms:play-services-location:21.0.1'

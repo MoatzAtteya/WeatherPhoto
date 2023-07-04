@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -143,10 +144,7 @@ class MainFragment : BaseFragment<IMainFragmentViewModel, FragmentMainBinding>()
         }
 
     private fun openCameraFragment() {
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.container, PhotoPrepareFragment.newInstance())
-            .addToBackStack("MainFragment")
-            .commit()
+        findNavController().navigate(MainFragmentDirections.actionMainFragmentToPhotoPrepareFragment())
     }
 
 
